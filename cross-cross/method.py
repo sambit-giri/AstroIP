@@ -2,7 +2,6 @@ import numpy as np
 from head import cross2d, relate2d
 from draw_shapes import circle
 from random import randint
-import numpy as np
 import matplotlib.pyplot as plt
 import c2raytools as c2t
 
@@ -22,8 +21,31 @@ def append_points(st_list, en_list, st, en):
 	st_list.append((mid_x,mid_y))
 	en_list.append(en)
 
-def put_mark(out, control, (xs, ys), (xl, yl)):
-	out[xs:xl, ys:yl] = control
+def test_region(patch, data):
+        m1 = data.mean()
+        m2 = patch.mean()
+        if (m2 >= 0.1):
+                return True
+        else:
+                return  False
+
+def put_mark(out, bub, count, (xs, ys), (xl, yl), reg):
+	out[xs:xl, ys:yl] = count
+        if(reg):
+		"""
+                if xs == 0  : xs = 1
+                if xl > 254: xl = 254
+                if ys == 0  : ys = 1
+                if yl > 254: yl =254
+                for i in range(xs,xl+1):
+                        if(bub[i, ys-1]!=0): mark = bub[i, ys-1]
+                        elif(bub[i, yl+1]!=0): mark = bub[i, yl+1]
+                for j in range(ys,yl+1):
+                        if(bub[xs-1, j]!=0): mark = bub[xs-1, j]
+                        elif(bub[xl+1, j]!=0): mark = bub[xl+1, j]
+		"""
+                bub[xs:xl, ys:yl] = 1
+		
 
 def make_input(xs,ys):
 	arr=np.zeros((xs,ys))
@@ -51,6 +73,7 @@ def main():
 	"""
 
 	out = np.ones((256, 256))
+        bub_mat = np.zeros((256, 256))
 	count = 0
 
 	st = (0, 0)
@@ -61,10 +84,11 @@ def main():
 	append_points(st_list, en_list, st, en)
 
 	control = True
-	print control
+	mar = 0
+	#print control
 
 	while(control):
-		print st, en
+		#print st, en
 		st = st_list[0]
 		en = en_list[0]
 		st_list.pop(0)
@@ -74,20 +98,27 @@ def main():
 		rel = relate2d(check_ar)
 		
 		if(rel):
-			put_mark(out, count, st, en)
-			count = count+1
+                           reg = test_region(check_ar, data)
+			   #if (reg): mar=mar+1
+                           put_mark(out, bub_mat, count, st, en, reg)
+                           count = count+1
 		else:
-			append_points(st_list, en_list, st, en)	
+                           append_points(st_list, en_list, st, en)	
 
 		if(len(st_list) == 0):
-			control = False
+                           control = False
 
-	plt.figure(0)
+	#print data.mean()
+	bub_out = separate2d(bub_mat)
+        plt.figure(0)
 	plt.imshow(data)
 	plt.colorbar()
 	plt.figure(1)
 	plt.imshow(out)
 	plt.colorbar()
+        plt.figure(2)
+        plt.imshow(bub_out)
+        plt.colorbar()
 	plt.show()
 
 	

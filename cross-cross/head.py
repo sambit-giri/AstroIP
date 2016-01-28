@@ -29,7 +29,7 @@ def cross2d(array):
 def relate2d(array):
 	# A method similar to cross correlation is used.
 	if (array.shape[0] == 1 or array.shape[1] == 1):
-		print "True"
+		#print "True"
 		return True
 		
 	(ar1, ar2, ar3, ar4) = cross2d(array)
@@ -60,11 +60,26 @@ def relate2d(array):
 	err = 100*np.std(dt)/np.mean(dt)
 
 	if err < 0.01:
-		print "True"
+		#print "True"
 		return True
 	else:
-		print "False"
+		#print "False"
 		return False
+
+def separate2d(array):
+	out = np.zeros((array.shape[0], array.shape[1]))
+	mark = 1
+	neig = 0
+	for i in range(1, array.shape[0]-1):
+		for j in range(1, array.shape[1]-1):
+			if (array[i, j] == 1):
+				if (out[i-1,j]!=0): neig = out[i-1,j]
+				if (out[i,j-1]!=0): neig = out[i,j-1]
+				if (out[i-1,j]==0 and out[i,j-1]==0):
+					neig = mark
+					mark = mark + 1
+				out[i,j] = neig
+	return out
 
 
 
