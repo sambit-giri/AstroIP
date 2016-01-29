@@ -1,5 +1,5 @@
 import numpy as np
-from head import cross2d, relate2d, separate2d
+from head import cross2d, relate2d, separate2d, diff_image
 from draw_shapes import circle
 from random import randint
 import matplotlib.pyplot as plt
@@ -21,10 +21,12 @@ def append_points(st_list, en_list, st, en):
 	st_list.append((mid_x,mid_y))
 	en_list.append(en)
 
-def test_region(patch, data):
-        m1 = data.mean()
+def test_region(patch):
+        #m1 = data.mean()
         m2 = patch.mean()
-        if (m2 >= 0.1):
+	m3 = patch[patch.shape[0]/2, patch.shape[1]/2]
+	#print m2, m3
+        if (m2 > 0.8):
                 return True
         else:
                 return  False
@@ -32,18 +34,6 @@ def test_region(patch, data):
 def put_mark(out, bub, count, (xs, ys), (xl, yl), reg):
 	out[xs:xl, ys:yl] = count
         if(reg):
-		"""
-                if xs == 0  : xs = 1
-                if xl > 254: xl = 254
-                if ys == 0  : ys = 1
-                if yl > 254: yl =254
-                for i in range(xs,xl+1):
-                        if(bub[i, ys-1]!=0): mark = bub[i, ys-1]
-                        elif(bub[i, yl+1]!=0): mark = bub[i, yl+1]
-                for j in range(ys,yl+1):
-                        if(bub[xs-1, j]!=0): mark = bub[xs-1, j]
-                        elif(bub[xl+1, j]!=0): mark = bub[xl+1, j]
-		"""
                 bub[xs:xl, ys:yl] = 1
 		
 
@@ -60,7 +50,7 @@ def make_input(xs,ys):
 
 
 def main():
-	data = make_input(256, 256)
+	#data = make_input(256, 256)
 	"""
 	c2t.set_sim_constants(500)		#This function takes as its only parameter the box side in cMpc/h
 	c2t.set_verbose(True)			#Get feedback
@@ -71,6 +61,9 @@ def main():
 	data = crop_array(xfrac[150,:,:], (0,0), (256,256))
 	#data = data.T
 	"""
+
+	data = np.load('../sample-input/data.2D.npy')
+	data = crop_array(data, (0,0), (256,256))
 
 	out = np.ones((256, 256))
         bub_mat = np.zeros((256, 256))
@@ -98,8 +91,9 @@ def main():
 		rel = relate2d(check_ar)
 		
 		if(rel):
-                           reg = test_region(check_ar, data)
+                           reg = test_region(check_ar)
 			   #if (reg): mar=mar+1
+			   print reg
                            put_mark(out, bub_mat, count, st, en, reg)
                            count = count+1
 		else:
@@ -109,7 +103,7 @@ def main():
                            control = False
 
 	#print data.mean()
-	bub_out = separate2d(bub_mat)
+	#bub_out = separate2d(bub_mat)
         plt.figure(0)
 	plt.imshow(data)
 	plt.colorbar()
@@ -119,6 +113,9 @@ def main():
         plt.figure(2)
         plt.imshow(bub_mat)
         plt.colorbar()
+	plt.figure(3)
+	plt.imshow(diff_image(data)[0])
+	plt.colorbar()
 	plt.show()
 
 	

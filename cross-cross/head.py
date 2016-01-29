@@ -82,5 +82,16 @@ def separate2d(array):
 	return out
 
 
+def diff_image(img):
+	m = img.shape[0]
+	n = img.shape[1]
+	gx = np.zeros((m, n))
+	gy = np.zeros((m, n))
+	gx[:(m-1), :] = img[1:, :] - img[:(m-1), :]
+	gy[:, :(n-1)] = img[:, 1:] - img[:, :(n-1)]
+	dimg = np.fabs(gx)+np.fabs(gy)
+	return (dimg, gx, gy)
+
+
 
 
